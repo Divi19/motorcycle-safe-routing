@@ -1,7 +1,7 @@
 "use strict";
 
 // Live routing API base URL. Swap this one line to point at a different host.
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://administered-awarded-gnome-hours.trycloudflare.com";
 
 // Risk-class -> colour. The frontend does no calculation; this map is the only
 // place a colour is decided, driven solely by segment.risk_class.
