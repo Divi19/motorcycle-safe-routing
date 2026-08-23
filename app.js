@@ -426,7 +426,7 @@ async function loadLiveRoute() {
     `&dlat=${dest.lat}&dlon=${dest.lon}&night=${state.timeOfDay === "night"}`;
 
   try {
-    const res = await fetchWithTimeout(url, 3000);
+    const res = await fetchWithTimeout(url, 6000);
     if (!res.ok) {
       const body = await res.text();
       throw new Error(`HTTP ${res.status}: ${body}`);
