@@ -32,6 +32,11 @@ if HERE not in sys.path:
 
 from weights import risk_multiplier, risk_class  # noqa: E402
 
+# OSMnx strips non-whitelisted way tags by default. Without this, motorcycle
+# and flood_prone never reach the graph, so moto lanes and flood segments
+# are invisible to the router.
+ox.settings.useful_tags_way += ["motorcycle", "flood_prone", "note", "motor_vehicle"]
+
 BBOX = (101.54, 3.06, 101.69, 3.13)
 
 CORRIDORS = [

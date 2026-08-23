@@ -1,5 +1,9 @@
 import osmnx as ox, networkx as nx
 
+# OSMnx strips any way tag not on its default whitelist.
+# Without this, motorcycle/flood_prone never reach the graph.
+ox.settings.useful_tags_way += ["motorcycle", "flood_prone", "note", "motor_vehicle"]
+
 BBOX = (101.54, 3.06, 101.69, 3.13)
 
 print("downloading road graph...")

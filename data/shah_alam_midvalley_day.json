@@ -1464,7 +1464,7 @@
       "duration_min": 23,
       "exposure": {
         "high_risk_km": 0.7,
-        "moto_lane_km": 0.0,
+        "moto_lane_km": 15.6,
         "flood_prone_segments": 0
       },
       "segments": [
@@ -1643,9 +1643,9 @@
           "_edge_count": 5
         },
         {
-          "risk_class": "low",
+          "risk_class": "moto_lane",
           "highway": "service",
-          "moto_lane": false,
+          "moto_lane": true,
           "flood_prone": false,
           "length_m": 15648.3,
           "coords": [
@@ -3637,7 +3637,8 @@
     "extra_minutes": 2,
     "exposure_reduction_pct": 94,
     "reasons": [
-      "Avoids 10.4 km of high-risk road (motorway/trunk/primary shared with heavy vehicles)"
+      "Avoids 10.4 km of high-risk road (motorway/trunk/primary shared with heavy vehicles)",
+      "Uses segregated motorcycle lane for 15.6 km"
     ]
   }
 }
