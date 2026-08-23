@@ -173,7 +173,7 @@ html, body {
 .swatch.low       { background: var(--low); }
 .swatch.medium    { background: var(--medium); }
 .swatch.high      { background: var(--high); }
-.swatch.moto_lane { background: var(--moto_lane); }
+.swatch.moto_lane { background: var(--moto-lane); }
 .swatch.flood     { background: var(--flood); }
 
 @media (max-width: 600px) {
