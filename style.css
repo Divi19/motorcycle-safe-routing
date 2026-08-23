@@ -139,6 +139,19 @@ html, body {
   min-width: 220px;
 }
 
+#corridor-btn {
+  font: inherit;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+#corridor-btn:hover { background: #f7f7f5; }
+
 #time-toggle { margin-left: auto; }
 
 /* --- Live routing inputs --- */

@@ -41,6 +41,7 @@ const state = {
 
 const els = {
   corridorSelect: document.getElementById("corridor-select"),
+  corridorBtn: document.getElementById("corridor-btn"),
   timeToggle: document.getElementById("time-toggle"),
   nightNote: document.getElementById("night-note"),
   fallbackNotice: document.getElementById("fallback-notice"),
@@ -536,14 +537,24 @@ async function loadCorridorData() {
 }
 
 function populateCorridorDropdown() {
-  els.corridorSelect.innerHTML = "";
-  state.corridors.forEach((c) => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.label;
-    els.corridorSelect.appendChild(opt);
-  });
-  els.corridorSelect.disabled = state.corridors.length === 0;
+  // Single corridor: render as a button. Multiple: render as a <select>.
+  if (state.corridors.length === 1) {
+    const c = state.corridors[0];
+    els.corridorBtn.textContent = c.label;
+    els.corridorBtn.hidden = false;
+    els.corridorSelect.hidden = true;
+  } else {
+    els.corridorSelect.innerHTML = "";
+    state.corridors.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.label;
+      els.corridorSelect.appendChild(opt);
+    });
+    els.corridorSelect.disabled = state.corridors.length === 0;
+    els.corridorSelect.hidden = state.corridors.length === 0;
+    els.corridorBtn.hidden = true;
+  }
 }
 
 function setActiveTimeButton(time) {
@@ -558,6 +569,12 @@ function setActiveTimeButton(time) {
 function bindEvents() {
   els.corridorSelect.addEventListener("change", () => {
     state.corridorId = els.corridorSelect.value;
+    hideFallbackNotice();
+    loadCorridorData();
+  });
+
+  els.corridorBtn.addEventListener("click", () => {
+    state.corridorId = state.corridors.length > 0 ? state.corridors[0].id : null;
     hideFallbackNotice();
     loadCorridorData();
   });
