@@ -69,6 +69,9 @@ const els = {
 
 let map;
 let routeLayers = []; // leaflet layers for the currently drawn routes
+let routeTooltips = []; // permanent tooltip labels at route starts
+// Map route type -> array of polylines, for hover highlighting.
+let routeLayerGroups = { fastest: [], lower_exposure: [] };
 
 function initMap() {
   map = L.map(els.map, { zoomControl: true }).setView([3.094, 101.617], 12);
@@ -82,12 +85,18 @@ function initMap() {
 function clearRoutes() {
   routeLayers.forEach((layer) => map.removeLayer(layer));
   routeLayers = [];
+  routeTooltips.forEach((t) => map.removeLayer(t));
+  routeTooltips = [];
+  routeLayerGroups = { fastest: [], lower_exposure: [] };
 }
 
 function drawRoute(route) {
   // Each segment is drawn as its own polyline so its colour comes only from
   // segment.risk_class. Adjacent segments share endpoints, so the route reads
   // as a continuous line.
+  const isFastest = route.type === "fastest";
+  const group = [];
+
   route.segments.forEach((seg) => {
     if (!seg.coords || seg.coords.length < 2) return;
     const colour = RISK_COLOURS[seg.risk_class] || "#888";
@@ -97,8 +106,52 @@ function drawRoute(route) {
       opacity: 0.9,
       lineJoin: "round",
       lineCap: "round",
+      // Fastest route: dashed stroke. Lower-exposure: solid.
+      dashArray: isFastest ? "12,8" : null,
     }).addTo(map);
     routeLayers.push(polyline);
+    group.push(polyline);
+  });
+
+  routeLayerGroups[route.type] = group;
+
+  // Permanent tooltip label at the start of the route.
+  const firstSeg = (route.segments || []).find((s) => s.coords && s.coords.length >= 2);
+  if (firstSeg) {
+    const startPoint = firstSeg.coords[0];
+    const label = isFastest ? "Fastest" : "Lower exposure";
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: "top",
+      className: "route-label",
+      offset: [0, -10],
+    })
+      .setLatLng(startPoint)
+      .setContent(label)
+      .addTo(map);
+    routeTooltips.push(tooltip);
+  }
+}
+
+/* --- Route hover highlight --- */
+
+function highlightRoute(routeType) {
+  Object.keys(routeLayerGroups).forEach((type) => {
+    const isTarget = type === routeType;
+    routeLayerGroups[type].forEach((poly) => {
+      poly.setStyle({
+        opacity: isTarget ? 1.0 : 0.25,
+        weight: isTarget ? 8 : 6,
+      });
+    });
+  });
+}
+
+function resetRouteHighlight() {
+  Object.keys(routeLayerGroups).forEach((type) => {
+    routeLayerGroups[type].forEach((poly) => {
+      poly.setStyle({ opacity: 0.9, weight: 6 });
+    });
   });
 }
 
@@ -110,11 +163,13 @@ function fitToRoutes(routes) {
   if (allPoints.length === 0) return;
   // Force Leaflet to recalculate the map container size before fitting,
   // in case the results panel or headline just changed the layout.
-  // Defer fitBounds to the next frame so invalidateSize has settled.
+  // Use double rAF so invalidateSize fully settles before fitBounds.
   map.invalidateSize();
   const bounds = L.latLngBounds(allPoints);
   requestAnimationFrame(() => {
-    map.fitBounds(bounds, { padding: [40, 40] });
+    requestAnimationFrame(() => {
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+    });
   });
 }
 
@@ -198,6 +253,10 @@ function renderRouteCard(route) {
 
   // Composition bar + summary line.
   card.appendChild(renderCompBar(route));
+
+  // Hover: highlight this route on the map, dim the other.
+  card.addEventListener("mouseenter", () => highlightRoute(route.type));
+  card.addEventListener("mouseleave", () => resetRouteHighlight());
 
   return card;
 }
