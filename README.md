@@ -27,8 +27,10 @@ Routing cost for each road segment is `length × risk_multiplier`, not `travel_t
 **Modifiers:**
 
 - `motorcycle=designated|yes` → ×0.3 (segregated infrastructure)
-- `flood_prone=yes` → ×3.0
+- `flood_prone=yes` (or a `note` tag containing "flood") → ×3.0, rendered as a distinct risk class (purple on the map)
 - Night on motorway/trunk/primary → ×1.4
+
+No flood-tagged segments fall on the demo corridors, so this modifier does not affect the reported results. The capability is implemented and verified in the weights unit tests (`build/test_weights.py`), but untriggered on these routes.
 
 ### Two-graph compose
 
