@@ -50,11 +50,26 @@ html, body {
 .headline {
   grid-area: headline;
   display: flex;
-  gap: 32px;
-  align-items: baseline;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
   padding: 18px 20px;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
+}
+
+.wordmark {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.headline-figs {
+  display: flex;
+  gap: 32px;
+  align-items: baseline;
 }
 
 .headline-fig { display: flex; flex-direction: column; }
@@ -437,9 +452,15 @@ html, body {
 
   .headline {
     flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
     padding: 14px 16px;
   }
+  .headline-figs {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .wordmark { font-size: 32px; }
   .headline-big { font-size: 48px; }
   .headline-mid { font-size: 26px; }
 
