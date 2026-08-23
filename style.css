@@ -244,8 +244,14 @@ html, body {
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: var(--moto-lane);
+  color: var(--muted);
   cursor: pointer;
+  text-decoration: none;
+  outline: none;
+}
+
+.methodology-link:hover,
+.methodology-link:focus {
   text-decoration: underline;
 }
 
