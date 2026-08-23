@@ -27,8 +27,8 @@ from weights import risk_multiplier, risk_class  # noqa: E402
 # are invisible to the router. Must be set BEFORE any graph_from_bbox call.
 ox.settings.useful_tags_way += ["motorcycle", "flood_prone", "note", "motor_vehicle"]
 
-# Wider bbox than the static export — the live API accepts arbitrary points.
-BBOX = (101.45, 2.95, 101.78, 3.25)
+# Matches export_routes.py exactly so live routing agrees with static output.
+BBOX = (101.54, 3.06, 101.69, 3.13)
 
 PICKLE_PATH = os.path.join(HERE, "graph.pkl")
 
@@ -36,14 +36,14 @@ PICKLE_PATH = os.path.join(HERE, "graph.pkl")
 def build_graph():
     """Compose drive + motorcycle graphs, drop non-roads, annotate edges."""
     print("downloading road graph...")
-    G_road = ox.graph_from_bbox(bbox=BBOX, network_type="drive", simplify=True)
+    G_road = ox.graph_from_bbox(bbox=BBOX, network_type="drive", simplify=False)
 
     print("downloading motorcycle lane graph...")
     G_moto = ox.graph_from_bbox(
         bbox=BBOX,
         custom_filter='["motorcycle"~"designated|yes"]',
         retain_all=True,
-        simplify=True,
+        simplify=False,
     )
 
     G = nx.compose(G_road, G_moto)
@@ -66,12 +66,12 @@ def build_graph():
         d["risk_weight_night"] = length * risk_multiplier(d, night=True)
         d["risk_class"] = risk_class(d)
 
-    return G
+    return G, G_road
 
 
 def main():
     t0 = time.time()
-    G = build_graph()
+    G, G_road = build_graph()
     build_secs = time.time() - t0
 
     nodes = G.number_of_nodes()
@@ -79,8 +79,10 @@ def main():
     print(f"graph: {nodes} nodes, {edges} edges")
 
     t1 = time.time()
+    # Pickle both the composed graph (for routing) and the road-only graph
+    # (for endpoint snapping, matching export_routes.py).
     with open(PICKLE_PATH, "wb") as f:
-        pickle.dump(G, f, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump({"G": G, "G_road": G_road}, f, protocol=pickle.HIGHEST_PROTOCOL)
     pickle_secs = time.time() - t1
 
     size_mb = os.path.getsize(PICKLE_PATH) / (1024 * 1024)

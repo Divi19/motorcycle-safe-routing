@@ -28,7 +28,7 @@ if HERE not in sys.path:
 PICKLE_PATH = os.path.join(HERE, "graph.pkl")
 
 # Bbox must match build_graph_cache.py so the 422 guard is accurate.
-BBOX = (101.45, 2.95, 101.78, 3.25)  # (west, south, east, north)
+BBOX = (101.54, 3.06, 101.69, 3.13)  # (west, south, east, north)
 BBOX_WEST, BBOX_SOUTH, BBOX_EAST, BBOX_NORTH = BBOX
 
 HIGH_RISK_CLASSES = {"high", "flood"}
@@ -59,7 +59,9 @@ if not os.path.exists(PICKLE_PATH):
 
 _t0 = time.time()
 with open(PICKLE_PATH, "rb") as f:
-    G = pickle.load(f)
+    _cache = pickle.load(f)
+G = _cache["G"]
+G_road = _cache["G_road"]
 print(
     f"loaded graph.pkl: {G.number_of_nodes()} nodes, "
     f"{G.number_of_edges()} edges in {time.time() - _t0:.1f}s"
@@ -259,8 +261,11 @@ def route(
     _check_bbox(olat, olon, "origin")
     _check_bbox(dlat, dlon, "destination")
 
-    orig = ox.nearest_nodes(G, olon, olat)
-    dest = ox.nearest_nodes(G, dlon, dlat)
+    # Snap to G_road (not the composed G) to avoid landing on isolated
+    # motorcycle-lane nodes that have no directed path to the destination.
+    # Matches export_routes.py.
+    orig = ox.nearest_nodes(G_road, olon, olat)
+    dest = ox.nearest_nodes(G_road, dlon, dlat)
 
     risk_weight_key = "risk_weight_night" if night else "risk_weight_day"
 
