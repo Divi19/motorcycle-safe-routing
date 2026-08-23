@@ -3,6 +3,13 @@
 // Live routing API base URL. Swap this one line to point at a different host.
 const API_BASE = "https://administered-awarded-gnome-hours.trycloudflare.com";
 
+// Nominatim geocoding endpoint. Bounded to the Klang Valley viewbox.
+const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+const NOMINATIM_VIEWBOX = "101.45,3.25,101.78,2.95"; // left,top,right,bottom
+
+// Routing bbox — points outside this are rejected with a friendly message.
+const ROUTE_BBOX = { west: 101.54, south: 3.06, east: 101.69, north: 3.13 };
+
 // Risk-class -> colour. The frontend does no calculation; this map is the only
 // place a colour is decided, driven solely by segment.risk_class.
 const RISK_COLOURS = {
@@ -27,6 +34,9 @@ const state = {
   timeOfDay: "day",
   // "static" = showing precomputed corridor JSON; "live" = showing API response
   mode: "static",
+  // Selected geocoded points: { lat, lon, name }
+  origin: null,
+  dest: null,
 };
 
 const els = {
@@ -36,6 +46,10 @@ const els = {
   fallbackNotice: document.getElementById("fallback-notice"),
   originInput: document.getElementById("origin-input"),
   destInput: document.getElementById("dest-input"),
+  originResults: document.getElementById("origin-results"),
+  destResults: document.getElementById("dest-results"),
+  originResolved: document.getElementById("origin-resolved"),
+  destResolved: document.getElementById("dest-resolved"),
   routeBtn: document.getElementById("route-btn"),
   map: document.getElementById("map"),
   loading: document.getElementById("loading"),
@@ -263,13 +277,91 @@ function hideFallbackNotice() {
   els.fallbackNotice.hidden = true;
 }
 
-/* --- Live routing --- */
+/* --- Nominatim geocoding + autocomplete --- */
 
-function parseLatLon(text) {
-  const parts = text.split(",").map((s) => parseFloat(s.trim()));
-  if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
-  return { lat: parts[0], lon: parts[1] };
+// Nominatim requires a descriptive User-Agent. Browser fetch doesn't allow
+// setting User-Agent directly (it's a forbidden header), so we rely on the
+// default browser UA which includes the app origin. Nominatim's policy
+// accepts this for low-volume client-side usage.
+async function geocode(query) {
+  const url =
+    `${NOMINATIM_URL}?format=json&limit=5&countrycodes=my` +
+    `&viewbox=${NOMINATIM_VIEWBOX}&bounded=1&q=${encodeURIComponent(query)}`;
+  try {
+    const res = await fetch(url, { headers: { "Accept-Language": "en" } });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    return [];
+  }
 }
+
+function debounce(fn, ms) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+function renderSearchResults(listEl, results, onSelect) {
+  listEl.innerHTML = "";
+  if (results.length === 0) {
+    listEl.hidden = true;
+    return;
+  }
+  results.forEach((r) => {
+    const li = document.createElement("li");
+    li.textContent = r.display_name;
+    li.addEventListener("click", () => {
+      onSelect(r);
+      listEl.hidden = true;
+    });
+    listEl.appendChild(li);
+  });
+  listEl.hidden = false;
+}
+
+function hideSearchResults(listEl) {
+  listEl.innerHTML = "";
+  listEl.hidden = true;
+}
+
+function inRouteBbox(lat, lon) {
+  return (
+    lat >= ROUTE_BBOX.south && lat <= ROUTE_BBOX.north &&
+    lon >= ROUTE_BBOX.west && lon <= ROUTE_BBOX.east
+  );
+}
+
+function selectOrigin(r) {
+  state.origin = { lat: parseFloat(r.lat), lon: parseFloat(r.lon), name: r.display_name };
+  els.originInput.value = r.display_name.split(",")[0];
+  els.originResolved.textContent = r.display_name;
+  els.originResolved.hidden = false;
+}
+
+function selectDest(r) {
+  state.dest = { lat: parseFloat(r.lat), lon: parseFloat(r.lon), name: r.display_name };
+  els.destInput.value = r.display_name.split(",")[0];
+  els.destResolved.textContent = r.display_name;
+  els.destResolved.hidden = false;
+}
+
+// Debounced search handlers (400ms).
+const debouncedOriginSearch = debounce(async (q) => {
+  if (q.trim().length < 2) { hideSearchResults(els.originResults); return; }
+  const results = await geocode(q);
+  renderSearchResults(els.originResults, results, selectOrigin);
+}, 400);
+
+const debouncedDestSearch = debounce(async (q) => {
+  if (q.trim().length < 2) { hideSearchResults(els.destResults); return; }
+  const results = await geocode(q);
+  renderSearchResults(els.destResults, results, selectDest);
+}, 400);
+
+/* --- Live routing --- */
 
 async function fetchWithTimeout(url, ms) {
   const ctrl = new AbortController();
@@ -282,10 +374,42 @@ async function fetchWithTimeout(url, ms) {
 }
 
 async function loadLiveRoute() {
-  const origin = parseLatLon(els.originInput.value);
-  const dest = parseLatLon(els.destInput.value);
+  // Geocode the current input values if no selection has been made yet.
+  let origin = state.origin;
+  let dest = state.dest;
+
+  // If the user typed but didn't pick from the dropdown, try to geocode now.
+  if (!origin && els.originInput.value.trim()) {
+    const results = await geocode(els.originInput.value);
+    if (results.length === 0) {
+      showError("Location not found \u2014 try a nearby landmark");
+      return;
+    }
+    selectOrigin(results[0]);
+    origin = state.origin;
+  }
+  if (!dest && els.destInput.value.trim()) {
+    const results = await geocode(els.destInput.value);
+    if (results.length === 0) {
+      showError("Location not found \u2014 try a nearby landmark");
+      return;
+    }
+    selectDest(results[0]);
+    dest = state.dest;
+  }
+
   if (!origin || !dest) {
-    showError("Enter origin and destination as lat, lon pairs.");
+    showError("Enter an origin and destination.");
+    return;
+  }
+
+  // Bbox guard — friendly message, not a raw API error.
+  if (!inRouteBbox(origin.lat, origin.lon)) {
+    showError("Outside our current coverage area (Klang Valley corridor)");
+    return;
+  }
+  if (!inRouteBbox(dest.lat, dest.lon)) {
+    showError("Outside our current coverage area (Klang Valley corridor)");
     return;
   }
 
@@ -378,11 +502,40 @@ function bindEvents() {
     loadLiveRoute();
   });
 
-  // Enter key in the origin/destination inputs triggers routing.
-  [els.originInput, els.destInput].forEach((input) => {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") loadLiveRoute();
-    });
+  // Origin autocomplete — debounced search + clear selection on edit.
+  els.originInput.addEventListener("input", () => {
+    state.origin = null;
+    els.originResolved.hidden = true;
+    debouncedOriginSearch(els.originInput.value);
+  });
+  els.originInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      hideSearchResults(els.originResults);
+      loadLiveRoute();
+    }
+  });
+
+  // Destination autocomplete.
+  els.destInput.addEventListener("input", () => {
+    state.dest = null;
+    els.destResolved.hidden = true;
+    debouncedDestSearch(els.destInput.value);
+  });
+  els.destInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      hideSearchResults(els.destResults);
+      loadLiveRoute();
+    }
+  });
+
+  // Click outside closes the search dropdowns.
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#origin-input") && !e.target.closest("#origin-results")) {
+      hideSearchResults(els.originResults);
+    }
+    if (!e.target.closest("#dest-input") && !e.target.closest("#dest-results")) {
+      hideSearchResults(els.destResults);
+    }
   });
 
   els.timeToggle.addEventListener("click", (e) => {
@@ -411,6 +564,19 @@ function bindEvents() {
 async function bootstrap() {
   initMap();
   bindEvents();
+
+  // Pre-geocode the prefilled place names so the demo needs no typing.
+  // These run in parallel; if they fail, the user can still type to search.
+  try {
+    const [origResults, destResults] = await Promise.all([
+      geocode(els.originInput.value),
+      geocode(els.destInput.value),
+    ]);
+    if (origResults.length > 0) selectOrigin(origResults[0]);
+    if (destResults.length > 0) selectDest(destResults[0]);
+  } catch (err) {
+    // Non-fatal — the inputs are still usable for manual search.
+  }
 
   try {
     const res = await fetch("data/corridors.json");

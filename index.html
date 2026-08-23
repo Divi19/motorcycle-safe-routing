@@ -40,10 +40,18 @@
         <select id="corridor-select" disabled></select>
       </div>
       <div class="control-group live-group">
-        <label for="origin-input">Origin</label>
-        <input type="text" id="origin-input" placeholder="lat, lon" value="3.0743, 101.5557" />
-        <label for="dest-input">Destination</label>
-        <input type="text" id="dest-input" placeholder="lat, lon" value="3.1144, 101.6785" />
+        <div class="search-box">
+          <label for="origin-input">Origin</label>
+          <input type="text" id="origin-input" placeholder="Search a place" value="Shah Alam" autocomplete="off" />
+          <ul id="origin-results" class="search-results" hidden></ul>
+          <span id="origin-resolved" class="resolved-name" hidden></span>
+        </div>
+        <div class="search-box">
+          <label for="dest-input">Destination</label>
+          <input type="text" id="dest-input" placeholder="Search a place" value="Mid Valley Megamall" autocomplete="off" />
+          <ul id="dest-results" class="search-results" hidden></ul>
+          <span id="dest-resolved" class="resolved-name" hidden></span>
+        </div>
         <button type="button" id="route-btn">Route</button>
       </div>
       <div class="control-group" id="time-toggle">
