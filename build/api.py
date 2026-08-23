@@ -28,7 +28,7 @@ if HERE not in sys.path:
 PICKLE_PATH = os.path.join(HERE, "graph.pkl")
 
 # Bbox must match build_graph_cache.py so the 422 guard is accurate.
-BBOX = (101.54, 3.06, 101.69, 3.13)  # (west, south, east, north)
+BBOX = (101.50, 3.00, 101.75, 3.20)  # (west, south, east, north)
 BBOX_WEST, BBOX_SOUTH, BBOX_EAST, BBOX_NORTH = BBOX
 
 HIGH_RISK_CLASSES = {"high", "flood"}

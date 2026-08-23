@@ -27,8 +27,9 @@ from weights import risk_multiplier, risk_class  # noqa: E402
 # are invisible to the router. Must be set BEFORE any graph_from_bbox call.
 ox.settings.useful_tags_way += ["motorcycle", "flood_prone", "note", "motor_vehicle"]
 
-# Matches export_routes.py exactly so live routing agrees with static output.
-BBOX = (101.54, 3.06, 101.69, 3.13)
+# Matches the bbox guard in api.py and app.js. Wide enough to include
+# central KL (KL Sentral at 3.134, 101.686) without over-downloading.
+BBOX = (101.50, 3.00, 101.75, 3.20)
 
 PICKLE_PATH = os.path.join(HERE, "graph.pkl")
 

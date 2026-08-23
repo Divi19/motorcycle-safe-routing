@@ -8,7 +8,7 @@ const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 const NOMINATIM_VIEWBOX = "101.45,3.25,101.78,2.95"; // left,top,right,bottom
 
 // Routing bbox — points outside this are rejected with a friendly message.
-const ROUTE_BBOX = { west: 101.54, south: 3.06, east: 101.69, north: 3.13 };
+const ROUTE_BBOX = { west: 101.50, south: 3.00, east: 101.75, north: 3.20 };
 
 // Risk-class -> colour. The frontend does no calculation; this map is the only
 // place a colour is decided, driven solely by segment.risk_class.
