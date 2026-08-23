@@ -2,9 +2,17 @@
   "corridors": [
     {
       "id": "shah_alam_midvalley",
-      "label": "Shah Alam → Mid Valley",
-      "origin": {"lat": 3.0743, "lon": 101.5557, "name": "Batu Tiga"},
-      "destination": {"lat": 3.1144, "lon": 101.6785, "name": "Seputeh"}
+      "label": "Shah Alam \u2192 Mid Valley",
+      "origin": {
+        "lat": 3.0743,
+        "lon": 101.5557,
+        "name": "Batu Tiga"
+      },
+      "destination": {
+        "lat": 3.1144,
+        "lon": 101.6785,
+        "name": "Seputeh"
+      }
     }
   ]
 }
