@@ -14,6 +14,26 @@
 </head>
 <body>
   <div id="app">
+    <p id="framing">
+      Two in three Malaysians killed on the road are on a motorcycle.
+      Google Maps routes them like cars.
+    </p>
+
+    <section id="headline" class="headline" hidden>
+      <div class="headline-fig" id="headline-pct-wrap">
+        <span class="headline-big" id="headline-pct">—</span>
+        <span class="headline-cap">less high-risk road</span>
+      </div>
+      <div class="headline-fig">
+        <span class="headline-mid" id="headline-min">—</span>
+        <span class="headline-cap">extra travel time</span>
+      </div>
+      <div class="headline-fig">
+        <span class="headline-mid" id="headline-lane">—</span>
+        <span class="headline-cap">on segregated lane <span id="headline-lane-vs"></span></span>
+      </div>
+    </section>
+
     <header id="controls">
       <div class="control-group">
         <label for="corridor-select">Corridor</label>
@@ -23,6 +43,9 @@
         <button type="button" class="toggle-btn active" data-time="day">Day</button>
         <button type="button" class="toggle-btn" data-time="night">Night</button>
       </div>
+      <p id="night-note" class="night-note" hidden>
+        After dark, motorway, trunk and primary roads carry a 1.4&times; weight.
+      </p>
     </header>
 
     <main id="map" role="img" aria-label="Map of routes"></main>
@@ -36,6 +59,34 @@
           <section id="comparison" class="comparison">
             <h2>Why the lower exposure route differs</h2>
             <ul id="reasons" class="reasons"></ul>
+          </section>
+          <section id="methodology" class="methodology">
+            <button type="button" id="methodology-toggle" class="methodology-link" aria-expanded="false">
+              How this works
+            </button>
+            <div id="methodology-body" class="methodology-body" hidden>
+              <h3>Weights</h3>
+              <table class="weight-table">
+                <thead><tr><th>Road class</th><th>Multiplier</th></tr></thead>
+                <tbody>
+                  <tr><td>motorway</td><td>3.0</td></tr>
+                  <tr><td>trunk</td><td>2.5</td></tr>
+                  <tr><td>primary</td><td>2.0</td></tr>
+                  <tr><td>secondary</td><td>1.5</td></tr>
+                  <tr><td>tertiary</td><td>1.2</td></tr>
+                  <tr><td>residential</td><td>1.0</td></tr>
+                </tbody>
+              </table>
+              <p class="weight-mod">Modifiers: <code>motorcycle=designated</code> &times;0.3, <code>flood_prone</code> &times;3.0, night on high-speed classes &times;1.4. Cost = length &times; multiplier.</p>
+
+              <h3>Limitations</h3>
+              <ol class="limitations">
+                <li>Published figures such as &ldquo;62% of motorcycle fatalities occur on primary roads&rdquo; are confounded by exposure &mdash; most riding happens on primary roads. These weights are informed judgment calibrated against published aggregates, not a derivation from crash data.</li>
+                <li>Lighting excluded: measured <code>lit</code> tag coverage was 682 of 12,991 major KL roads (5.3%), too sparse to use. Darkness is handled as a global night multiplier.</li>
+                <li>Routes are precomputed for demo reliability. Every route shown is genuine router output.</li>
+                <li>Malaysia&rsquo;s crash blackspot locations are held by KKR, LLM and JKR and are not published as open data. Exposure is inferred from road attributes instead.</li>
+              </ol>
+            </div>
           </section>
         </div>
       </div>
@@ -52,6 +103,13 @@
       </ul>
     </div>
   </div>
+
+  <footer id="footer">
+    <p>Road deaths 2025: 4,340 of 6,537 were motorcycle users &mdash; Transport Minister Anthony Loke, Dewan Rakyat, 27 Jan 2026.</p>
+    <p>Motorcycles are 47% of registered vehicles; ~3% of road infrastructure rates 3-star or better for them, vs ~49% for vehicle occupants &mdash; Asian Transport Observatory, Malaysia Road Safety Profile 2025.</p>
+    <p>Road data: OpenStreetMap contributors (ODbL).</p>
+    <p class="advisory">Advisory only. Does not replace rider judgment or road-legal navigation.</p>
+  </footer>
 
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
