@@ -94,6 +94,9 @@ function fitToRoutes(routes) {
     (s.coords || []).forEach((c) => allPoints.push(c));
   }));
   if (allPoints.length === 0) return;
+  // Force Leaflet to recalculate the map container size before fitting,
+  // in case the results panel or headline just changed the layout.
+  map.invalidateSize();
   map.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
 }
 
