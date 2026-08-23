@@ -58,12 +58,26 @@ html, body {
 }
 
 .wordmark {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.wordmark-text {
   font-size: 80px;
   font-weight: 900;
   letter-spacing: 0.08em;
   color: var(--ink);
-  flex-shrink: 0;
   line-height: 1;
+}
+
+.tagline {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.02em;
 }
 
 .headline-figs {
@@ -72,6 +86,7 @@ html, body {
   align-items: baseline;
   margin-left: auto;
   margin-right: auto;
+  padding-right: 80px;
 }
 
 .headline-fig { display: flex; flex-direction: column; }
@@ -449,6 +464,7 @@ html, body {
   .headline-figs {
     margin-left: 0;
     margin-right: 0;
+    padding-right: 0;
   }
 }
 
