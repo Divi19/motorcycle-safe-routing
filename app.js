@@ -51,6 +51,8 @@ const els = {
   originResolved: document.getElementById("origin-resolved"),
   destResolved: document.getElementById("dest-resolved"),
   routeBtn: document.getElementById("route-btn"),
+  showFastest: document.getElementById("show-fastest"),
+  showLower: document.getElementById("show-lower"),
   map: document.getElementById("map"),
   loading: document.getElementById("loading"),
   error: document.getElementById("error"),
@@ -115,10 +117,17 @@ function drawRoute(route) {
 
   routeLayerGroups[route.type] = group;
 
-  // Permanent tooltip label at the start of the route.
-  const firstSeg = (route.segments || []).find((s) => s.coords && s.coords.length >= 2);
-  if (firstSeg) {
-    const startPoint = firstSeg.coords[0];
+  // Permanent tooltip label at the midpoint of the route.
+  // Both routes start at the same origin, so placing labels at the start
+  // causes overlap. The routes diverge in the middle, so the midpoint
+  // coordinate separates the labels.
+  const allCoords = [];
+  (route.segments || []).forEach((s) => {
+    (s.coords || []).forEach((c) => allCoords.push(c));
+  });
+  if (allCoords.length > 0) {
+    const midIdx = Math.floor(allCoords.length / 2);
+    const midPoint = allCoords[midIdx];
     const label = isFastest ? "Fastest" : "Lower exposure";
     const tooltip = L.tooltip({
       permanent: true,
@@ -126,32 +135,25 @@ function drawRoute(route) {
       className: "route-label",
       offset: [0, -10],
     })
-      .setLatLng(startPoint)
+      .setLatLng(midPoint)
       .setContent(label)
       .addTo(map);
     routeTooltips.push(tooltip);
   }
 }
 
-/* --- Route hover highlight --- */
+/* --- Route visibility toggles --- */
 
-function highlightRoute(routeType) {
-  Object.keys(routeLayerGroups).forEach((type) => {
-    const isTarget = type === routeType;
-    routeLayerGroups[type].forEach((poly) => {
-      poly.setStyle({
-        opacity: isTarget ? 1.0 : 0.25,
-        weight: isTarget ? 8 : 6,
-      });
-    });
+function applyRouteVisibility() {
+  const showFastest = els.showFastest.checked;
+  const showLower = els.showLower.checked;
+  routeLayerGroups.fastest.forEach((poly) => {
+    if (showFastest) poly.addTo(map);
+    else map.removeLayer(poly);
   });
-}
-
-function resetRouteHighlight() {
-  Object.keys(routeLayerGroups).forEach((type) => {
-    routeLayerGroups[type].forEach((poly) => {
-      poly.setStyle({ opacity: 0.9, weight: 6 });
-    });
+  routeLayerGroups.lower_exposure.forEach((poly) => {
+    if (showLower) poly.addTo(map);
+    else map.removeLayer(poly);
   });
 }
 
@@ -254,10 +256,6 @@ function renderRouteCard(route) {
   // Composition bar + summary line.
   card.appendChild(renderCompBar(route));
 
-  // Hover: highlight this route on the map, dim the other.
-  card.addEventListener("mouseenter", () => highlightRoute(route.type));
-  card.addEventListener("mouseleave", () => resetRouteHighlight());
-
   return card;
 }
 
@@ -318,6 +316,9 @@ function renderResults(data) {
   });
 
   els.routesPanel.hidden = false;
+
+  // Apply checkbox visibility state to the freshly drawn routes.
+  applyRouteVisibility();
 }
 
 function showError(message) {
@@ -564,6 +565,10 @@ function bindEvents() {
   els.routeBtn.addEventListener("click", () => {
     loadLiveRoute();
   });
+
+  // Route visibility checkboxes.
+  els.showFastest.addEventListener("change", applyRouteVisibility);
+  els.showLower.addEventListener("change", applyRouteVisibility);
 
   // Origin autocomplete — debounced search + clear selection on edit.
   els.originInput.addEventListener("input", () => {

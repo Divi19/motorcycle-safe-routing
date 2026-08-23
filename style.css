@@ -209,6 +209,31 @@ html, body {
   font-style: italic;
 }
 
+/* --- Route visibility toggles --- */
+.route-toggles {
+  display: flex;
+  gap: 24px;
+  padding: 8px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  z-index: 1000;
+}
+
+.route-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.route-toggles input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 /* --- Map --- */
 #map {
   grid-area: map;
