@@ -58,17 +58,20 @@ html, body {
 }
 
 .wordmark {
-  font-size: 40px;
+  font-size: 80px;
   font-weight: 900;
   letter-spacing: 0.08em;
   color: var(--ink);
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .headline-figs {
   display: flex;
   gap: 32px;
   align-items: baseline;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .headline-fig { display: flex; flex-direction: column; }
@@ -436,6 +439,19 @@ html, body {
 #footer p { margin: 0 0 6px; }
 #footer .advisory { font-weight: 600; color: var(--ink); }
 
+/* --- Narrow: stack wordmark above figures --- */
+@media (max-width: 900px) {
+  .headline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .headline-figs {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 /* --- Mobile --- */
 @media (max-width: 600px) {
   #app {
@@ -459,7 +475,7 @@ html, body {
     flex-direction: column;
     gap: 12px;
   }
-  .wordmark { font-size: 32px; }
+  .wordmark { font-size: 48px; }
   .headline-big { font-size: 48px; }
   .headline-mid { font-size: 26px; }
 
