@@ -1,0 +1,190 @@
+:root {
+  --low: #2e8b57;
+  --medium: #f5a623;
+  --high: #d62828;
+  --moto-lane: #1f6feb;
+  --flood: #8338ec;
+  --bg: #f7f7f5;
+  --panel: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #666;
+  --border: #e2e2dd;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "controls controls"
+    "map results";
+  height: 100vh;
+}
+
+#controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  z-index: 1000;
+}
+
+.control-group { display: flex; align-items: center; gap: 8px; }
+
+.control-group label { font-weight: 600; font-size: 14px; }
+
+#corridor-select {
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  min-width: 220px;
+}
+
+#time-toggle { margin-left: auto; }
+
+.toggle-btn {
+  font: inherit;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.toggle-btn:first-child { border-radius: 4px 0 0 4px; }
+.toggle-btn:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+
+.toggle-btn.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+#map {
+  grid-area: map;
+  height: 100%;
+  width: 100%;
+  background: #eef2f0;
+}
+
+#results {
+  grid-area: results;
+  overflow-y: auto;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  padding: 16px;
+}
+
+.loading, .error {
+  margin: 0;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.loading { color: var(--muted); background: #f0f0ee; }
+.error   { color: #b00020; background: #fdecea; }
+
+.route-cards { display: flex; flex-direction: column; gap: 12px; margin: 0 0 16px; }
+
+.route-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.route-card h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.route-card .tag {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #eee;
+  color: var(--muted);
+}
+
+.route-card.lower_exposure .tag { background: #e6f4ea; color: #1e7e34; }
+.route-card.fastest .tag        { background: #fdecea; color: #b00020; }
+
+.route-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 13px; }
+
+.route-stats .stat-label { color: var(--muted); }
+.route-stats .stat-value { font-weight: 600; text-align: right; }
+
+.comparison {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.comparison h2 { margin: 0 0 8px; font-size: 15px; }
+
+.reasons { margin: 0; padding-left: 20px; }
+.reasons li { margin-bottom: 6px; font-size: 14px; line-height: 1.4; }
+
+.legend {
+  position: absolute;
+  left: 12px;
+  bottom: 24px;
+  z-index: 1000;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  font-size: 12px;
+}
+
+.legend h3 { margin: 0 0 6px; font-size: 12px; }
+.legend ul { list-style: none; margin: 0; padding: 0; }
+.legend li { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.swatch.low       { background: var(--low); }
+.swatch.medium    { background: var(--medium); }
+.swatch.high      { background: var(--high); }
+.swatch.moto_lane { background: var(--moto_lane); }
+.swatch.flood     { background: var(--flood); }
+
+@media (max-width: 600px) {
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 60vh 1fr;
+    grid-template-areas:
+      "controls"
+      "map"
+      "results";
+  }
+  #results { border-left: none; border-top: 1px solid var(--border); }
+  #corridor-select { min-width: 0; flex: 1; }
+}

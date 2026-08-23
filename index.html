@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Motorcycle Risk-Weighted Router</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="controls">
+      <div class="control-group">
+        <label for="corridor-select">Corridor</label>
+        <select id="corridor-select" disabled></select>
+      </div>
+      <div class="control-group" id="time-toggle">
+        <button type="button" class="toggle-btn active" data-time="day">Day</button>
+        <button type="button" class="toggle-btn" data-time="night">Night</button>
+      </div>
+    </header>
+
+    <main id="map" role="img" aria-label="Map of routes"></main>
+
+    <aside id="results">
+      <div id="results-inner">
+        <p id="loading" class="loading" hidden>Loading route data…</p>
+        <p id="error" class="error" hidden></p>
+        <div id="routes-panel" hidden>
+          <section id="route-cards" class="route-cards"></section>
+          <section id="comparison" class="comparison">
+            <h2>Why the lower exposure route differs</h2>
+            <ul id="reasons" class="reasons"></ul>
+          </section>
+        </div>
+      </div>
+    </aside>
+
+    <div id="legend" class="legend">
+      <h3>Risk classes</h3>
+      <ul>
+        <li><span class="swatch low"></span> Low</li>
+        <li><span class="swatch medium"></span> Medium</li>
+        <li><span class="swatch high"></span> High</li>
+        <li><span class="swatch moto_lane"></span> Motorcycle lane</li>
+        <li><span class="swatch flood"></span> Flood-prone</li>
+      </ul>
+    </div>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="app.js"></script>
+</body>
+</html>

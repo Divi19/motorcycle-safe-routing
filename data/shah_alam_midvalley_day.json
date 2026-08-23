@@ -1,0 +1,106 @@
+{
+  "corridor_id": "shah_alam_midvalley",
+  "time_of_day": "day",
+  "_note": "FIXTURE — fake coordinates and numbers. Structure is real and frozen. Replace with router output.",
+  "routes": [
+    {
+      "type": "fastest",
+      "label": "Fastest route",
+      "distance_km": 24.5,
+      "duration_min": 24,
+      "exposure": {
+        "high_risk_km": 4.2,
+        "moto_lane_km": 0.4,
+        "flood_prone_segments": 1
+      },
+      "segments": [
+        {
+          "risk_class": "high",
+          "highway": "trunk",
+          "moto_lane": false,
+          "flood_prone": false,
+          "length_m": 3100,
+          "coords": [[3.0743, 101.5557], [3.0790, 101.5700], [3.0840, 101.5850]]
+        },
+        {
+          "risk_class": "high",
+          "highway": "motorway",
+          "moto_lane": false,
+          "flood_prone": false,
+          "length_m": 5200,
+          "coords": [[3.0840, 101.5850], [3.0910, 101.6100], [3.0980, 101.6350]]
+        },
+        {
+          "risk_class": "flood",
+          "highway": "trunk",
+          "moto_lane": false,
+          "flood_prone": true,
+          "length_m": 240,
+          "coords": [[3.0980, 101.6350], [3.0995, 101.6375]]
+        },
+        {
+          "risk_class": "medium",
+          "highway": "primary",
+          "moto_lane": false,
+          "flood_prone": false,
+          "length_m": 2800,
+          "coords": [[3.0995, 101.6375], [3.1060, 101.6560], [3.1144, 101.6785]]
+        }
+      ]
+    },
+    {
+      "type": "lower_exposure",
+      "label": "Lower exposure route",
+      "distance_km": 20.8,
+      "duration_min": 26,
+      "exposure": {
+        "high_risk_km": 0.9,
+        "moto_lane_km": 6.1,
+        "flood_prone_segments": 0
+      },
+      "segments": [
+        {
+          "risk_class": "medium",
+          "highway": "primary",
+          "moto_lane": false,
+          "flood_prone": false,
+          "length_m": 900,
+          "coords": [[3.0743, 101.5557], [3.0765, 101.5620]]
+        },
+        {
+          "risk_class": "moto_lane",
+          "highway": "service",
+          "moto_lane": true,
+          "flood_prone": false,
+          "length_m": 6100,
+          "coords": [[3.0765, 101.5620], [3.0830, 101.5900], [3.0900, 101.6180], [3.0960, 101.6400]]
+        },
+        {
+          "risk_class": "low",
+          "highway": "residential",
+          "moto_lane": false,
+          "flood_prone": false,
+          "length_m": 1400,
+          "coords": [[3.0960, 101.6400], [3.1020, 101.6540]]
+        },
+        {
+          "risk_class": "medium",
+          "highway": "secondary",
+          "moto_lane": false,
+          "flood_prone": false,
+          "length_m": 2100,
+          "coords": [[3.1020, 101.6540], [3.1144, 101.6785]]
+        }
+      ]
+    }
+  ],
+  "comparison": {
+    "extra_minutes": 2,
+    "exposure_reduction_pct": 79,
+    "reasons": [
+      "Avoids 3.3 km of trunk road shared with heavy vehicles",
+      "Uses the Federal Highway motorcycle lane for 6.1 km",
+      "Avoids a flood-prone underpass"
+    ]
+  }
+}
