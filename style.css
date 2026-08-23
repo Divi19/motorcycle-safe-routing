@@ -109,6 +109,37 @@ html, body {
 
 #time-toggle { margin-left: auto; }
 
+/* --- Live routing inputs --- */
+.live-group input[type="text"] {
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  width: 130px;
+}
+
+#route-btn {
+  font: inherit;
+  padding: 6px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#route-btn:hover { opacity: 0.88; }
+
+.fallback-notice {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
 .toggle-btn {
   font: inherit;
   padding: 6px 14px;
@@ -337,4 +368,6 @@ html, body {
   #results { border-left: none; border-top: 1px solid var(--border); }
   #corridor-select { min-width: 0; flex: 1; }
   #time-toggle { margin-left: 0; }
+  .live-group { flex-wrap: wrap; }
+  .live-group input[type="text"] { width: 100%; }
 }

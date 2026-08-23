@@ -1,5 +1,8 @@
 "use strict";
 
+// Live routing API base URL. Swap this one line to point at a different host.
+const API_BASE = "http://127.0.0.1:8000";
+
 // Risk-class -> colour. The frontend does no calculation; this map is the only
 // place a colour is decided, driven solely by segment.risk_class.
 const RISK_COLOURS = {
@@ -22,12 +25,18 @@ const state = {
   corridors: [],
   corridorId: null,
   timeOfDay: "day",
+  // "static" = showing precomputed corridor JSON; "live" = showing API response
+  mode: "static",
 };
 
 const els = {
   corridorSelect: document.getElementById("corridor-select"),
   timeToggle: document.getElementById("time-toggle"),
   nightNote: document.getElementById("night-note"),
+  fallbackNotice: document.getElementById("fallback-notice"),
+  originInput: document.getElementById("origin-input"),
+  destInput: document.getElementById("dest-input"),
+  routeBtn: document.getElementById("route-btn"),
   map: document.getElementById("map"),
   loading: document.getElementById("loading"),
   error: document.getElementById("error"),
@@ -243,12 +252,80 @@ function clearError() {
   els.error.textContent = "";
 }
 
+function showFallbackNotice() {
+  els.fallbackNotice.hidden = false;
+}
+
+function hideFallbackNotice() {
+  els.fallbackNotice.hidden = true;
+}
+
+/* --- Live routing --- */
+
+function parseLatLon(text) {
+  const parts = text.split(",").map((s) => parseFloat(s.trim()));
+  if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+  return { lat: parts[0], lon: parts[1] };
+}
+
+async function fetchWithTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { signal: ctrl.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+async function loadLiveRoute() {
+  const origin = parseLatLon(els.originInput.value);
+  const dest = parseLatLon(els.destInput.value);
+  if (!origin || !dest) {
+    showError("Enter origin and destination as lat, lon pairs.");
+    return;
+  }
+
+  clearRoutes();
+  clearError();
+  hideFallbackNotice();
+  els.routesPanel.hidden = true;
+  els.headline.hidden = true;
+  els.loading.hidden = false;
+  els.routeBtn.disabled = true;
+
+  const url =
+    `${API_BASE}/route?olat=${origin.lat}&olon=${origin.lon}` +
+    `&dlat=${dest.lat}&dlon=${dest.lon}&night=${state.timeOfDay === "night"}`;
+
+  try {
+    const res = await fetchWithTimeout(url, 3000);
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HTTP ${res.status}: ${body}`);
+    }
+    const data = await res.json();
+    state.mode = "live";
+    renderResults(data);
+    fitToRoutes(data.routes || []);
+  } catch (err) {
+    // Fallback to precomputed corridor data.
+    state.mode = "static";
+    showFallbackNotice();
+    await loadCorridorData();
+  } finally {
+    els.loading.hidden = true;
+    els.routeBtn.disabled = false;
+  }
+}
+
 async function loadCorridorData() {
   clearRoutes();
   clearError();
   els.routesPanel.hidden = true;
   els.headline.hidden = true;
   els.loading.hidden = false;
+  state.mode = "static";
 
   const url = `data/${state.corridorId}_${state.timeOfDay}.json`;
   try {
@@ -290,7 +367,19 @@ function setActiveTimeButton(time) {
 function bindEvents() {
   els.corridorSelect.addEventListener("change", () => {
     state.corridorId = els.corridorSelect.value;
+    hideFallbackNotice();
     loadCorridorData();
+  });
+
+  els.routeBtn.addEventListener("click", () => {
+    loadLiveRoute();
+  });
+
+  // Enter key in the origin/destination inputs triggers routing.
+  [els.originInput, els.destInput].forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loadLiveRoute();
+    });
   });
 
   els.timeToggle.addEventListener("click", (e) => {
@@ -299,7 +388,13 @@ function bindEvents() {
     const time = btn.dataset.time;
     if (time === state.timeOfDay) return;
     setActiveTimeButton(time);
-    loadCorridorData();
+    // In live mode, re-fetch from the API with the new day/night flag.
+    // In static mode, reload the precomputed JSON.
+    if (state.mode === "live") {
+      loadLiveRoute();
+    } else {
+      loadCorridorData();
+    }
   });
 
   // Methodology expand/collapse (item 5).

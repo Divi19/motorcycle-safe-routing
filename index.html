@@ -39,10 +39,20 @@
         <label for="corridor-select">Corridor</label>
         <select id="corridor-select" disabled></select>
       </div>
+      <div class="control-group live-group">
+        <label for="origin-input">Origin</label>
+        <input type="text" id="origin-input" placeholder="lat, lon" value="3.0743, 101.5557" />
+        <label for="dest-input">Destination</label>
+        <input type="text" id="dest-input" placeholder="lat, lon" value="3.1144, 101.6785" />
+        <button type="button" id="route-btn">Route</button>
+      </div>
       <div class="control-group" id="time-toggle">
         <button type="button" class="toggle-btn active" data-time="day">Day</button>
         <button type="button" class="toggle-btn" data-time="night">Night</button>
       </div>
+      <p id="fallback-notice" class="fallback-notice" hidden>
+        Live routing unavailable &mdash; showing precomputed corridor
+      </p>
       <p id="night-note" class="night-note" hidden>
         After dark, motorway, trunk and primary roads carry a 1.4&times; weight.
       </p>
