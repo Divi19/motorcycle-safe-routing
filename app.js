@@ -110,8 +110,12 @@ function fitToRoutes(routes) {
   if (allPoints.length === 0) return;
   // Force Leaflet to recalculate the map container size before fitting,
   // in case the results panel or headline just changed the layout.
+  // Defer fitBounds to the next frame so invalidateSize has settled.
   map.invalidateSize();
-  map.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
+  const bounds = L.latLngBounds(allPoints);
+  requestAnimationFrame(() => {
+    map.fitBounds(bounds, { padding: [40, 40] });
+  });
 }
 
 /* --- Exposure composition bar (item 2) --- */
