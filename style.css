@@ -209,15 +209,10 @@ html, body {
   font-style: italic;
 }
 
-/* --- Route visibility toggles --- */
+/* --- Route visibility toggles (inline in controls bar) --- */
 .route-toggles {
-  display: flex;
-  gap: 24px;
-  padding: 8px 16px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  gap: 16px;
   font-size: 14px;
-  z-index: 1000;
 }
 
 .route-toggles label {
@@ -226,6 +221,7 @@ html, body {
   gap: 6px;
   cursor: pointer;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .route-toggles input[type="checkbox"] {

@@ -58,6 +58,10 @@
         <button type="button" class="toggle-btn active" data-time="day">Day</button>
         <button type="button" class="toggle-btn" data-time="night">Night</button>
       </div>
+      <div class="control-group route-toggles">
+        <label><input type="checkbox" id="show-fastest" checked /> Show fastest route</label>
+        <label><input type="checkbox" id="show-lower" checked /> Show lower exposure route</label>
+      </div>
       <p id="fallback-notice" class="fallback-notice" hidden>
         Live routing unavailable &mdash; showing precomputed corridor
       </p>
@@ -65,11 +69,6 @@
         After dark, motorway, trunk and primary roads carry a 1.4&times; weight.
       </p>
     </header>
-
-    <div id="route-toggles" class="route-toggles">
-      <label><input type="checkbox" id="show-fastest" checked /> Show fastest route</label>
-      <label><input type="checkbox" id="show-lower" checked /> Show lower exposure route</label>
-    </div>
 
     <main id="map" role="img" aria-label="Map of routes"></main>
 
