@@ -50,9 +50,8 @@ html, body {
 .headline {
   grid-area: headline;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  gap: 40px;
   padding: 18px 20px;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
